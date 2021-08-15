@@ -1,0 +1,83 @@
+<html>
+    <head>      
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <script src="modernizr.custom.05819.js"></script>
+    </head>
+    <body>
+        <header>
+        </header> 
+        <table id=grid></table>
+        <BUTTON onclick="generateGrid();">Reset Grid</BUTTON>
+    <script>
+        var grid = document.getElementById("grid");
+        var testMode = false; 
+        generateGrid();
+        function generateGrid() {
+            grid.innerHTML = "";
+            for (var i = 0; i < 10; i++) {
+                row = grid.insertRow(i);
+                for (var x = 0; x < 10; x++) {
+                    cell = row.insertCell(x);
+                cell.onclick = function() { clickCell(this); };
+                var mine = document.createAttribute("datamine");   
+                mine.value = "false";             
+                cell.setAttributeNode(mine);
+                }
+            }
+            addMines();
+        }
+        function addMines() {
+            for (var i = 0; i < 20; i++) {
+                var row = Math.floor(Math.random() * 10);
+                var col = Math.floor(Math.random() * 10);
+                var cell = grid.rows[row].cells[col];
+                cell.setAttribute("datamine","true");
+            if (testMode) cell.innerHTML = "X";
+            }
+        }
+        function revealMines() {
+            for (var i = 0; i < 10; i++) {
+                for(var x = 0; x < 10; x++) {
+                    var cell = grid.rows[i].cells[x];
+                    if (cell.getAttribute("datamine") == "true") cell.className = "mine";
+                }
+            }
+        }
+        function checkLevelCompletion() {
+            var levelComplete = true;
+            for (var i=0; i<10; i++) {
+                for(var x = 0; x < 10; x++) {
+                    if ((grid.rows[i].cells[x].getAttribute("datamine")=="false") && (grid.rows[i].cells[x].innerHTML=="")) levelComplete=false;
+                }
+            }
+            if (levelComplete) {
+                alert("AMAZING!");
+                revealMines();
+            }
+        }
+        function clickCell(cell) {
+            if (cell.getAttribute("datamine") == "true") {
+                revealMines();
+                alert("TRY AGAIN!");
+            } else {
+                cell.className="clicked";
+                var mineCount = 0;
+                var cellRow = cell.parentNode.rowIndex;
+                var cellCol = cell.cellIndex;
+                for (var i = Math.max(cellRow - 1,0); i <= Math.min(cellRow + 1,9); i++) {
+                    for(var x = Math.max(cellCol - 1,0); x <= Math.min(cellCol + 1,9); x++) {
+                        if (grid.rows[i].cells[x].getAttribute("datamine") == "true") mineCount++;
+                    }
+                }
+            cell.innerHTML = mineCount;
+            if (mineCount == 0) { 
+                for (var i = Math.max(cellRow - 1,0); i <= Math.min(cellRow + 1,9); i++) {
+                    for(var x = Math.max(cellCol - 1,0); x <= Math.min(cellCol + 1,9); x++) {
+                        if (grid.rows[i].cells[x].innerHTML == "") clickCell(grid.rows[i].cells[x]);
+                    }
+                }
+            }
+    </script>
+    </body>
+</html>
